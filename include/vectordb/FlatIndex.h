@@ -38,7 +38,7 @@ namespace vectordb
                 for(size_t i = 0; i < vectors_.size(); ++i)
                 {
                     float dist = Distance::euclidean(query, vectors_[i].data);
-                    max_heap.emplace(dist, i);
+                    max_heap.push(SearchResult{dist, vectors_[i].id});
                     if(max_heap.size() > static_cast<size_t>(k))
                     {
                         max_heap.pop();
