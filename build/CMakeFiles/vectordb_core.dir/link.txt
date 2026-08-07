@@ -1,0 +1,2 @@
+/usr/bin/ar qc libvectordb_core.a CMakeFiles/vectordb_core.dir/src/Distance.cpp.o CMakeFiles/vectordb_core.dir/src/FlatIndex.cpp.o CMakeFiles/vectordb_core.dir/src/Storage.cpp.o
+/usr/bin/ranlib libvectordb_core.a

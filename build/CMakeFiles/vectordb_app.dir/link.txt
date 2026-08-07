@@ -1,0 +1,1 @@
+/usr/bin/c++  -O3 -march=native -Wl,--dependency-file=CMakeFiles/vectordb_app.dir/link.d CMakeFiles/vectordb_app.dir/app/main.cpp.o -o vectordb_app  libvectordb_core.a

@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/coco/Projects/PipoDB/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
