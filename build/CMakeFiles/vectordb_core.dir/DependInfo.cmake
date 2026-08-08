@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/coco/Projects/PipoDB/src/Distance.cpp" "CMakeFiles/vectordb_core.dir/src/Distance.cpp.o" "gcc" "CMakeFiles/vectordb_core.dir/src/Distance.cpp.o.d"
   "/home/coco/Projects/PipoDB/src/FlatIndex.cpp" "CMakeFiles/vectordb_core.dir/src/FlatIndex.cpp.o" "gcc" "CMakeFiles/vectordb_core.dir/src/FlatIndex.cpp.o.d"
+  "/home/coco/Projects/PipoDB/src/HNSWIndex.cpp" "CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o" "gcc" "CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o.d"
   "/home/coco/Projects/PipoDB/src/Storage.cpp" "CMakeFiles/vectordb_core.dir/src/Storage.cpp.o" "gcc" "CMakeFiles/vectordb_core.dir/src/Storage.cpp.o.d"
   )
 

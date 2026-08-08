@@ -88,12 +88,12 @@ clean: CMakeFiles/vectordb_app.dir/clean
 CMakeFiles/vectordb_core.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectordb_core.dir/build.make CMakeFiles/vectordb_core.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectordb_core.dir/build.make CMakeFiles/vectordb_core.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/coco/Projects/PipoDB/build/CMakeFiles --progress-num=3,4,5,6 "Built target vectordb_core"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/coco/Projects/PipoDB/build/CMakeFiles --progress-num=3,4,5,6,7 "Built target vectordb_core"
 .PHONY : CMakeFiles/vectordb_core.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/vectordb_core.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/coco/Projects/PipoDB/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/coco/Projects/PipoDB/build/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/vectordb_core.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/coco/Projects/PipoDB/build/CMakeFiles 0
 .PHONY : CMakeFiles/vectordb_core.dir/rule
@@ -105,7 +105,7 @@ vectordb_core: CMakeFiles/vectordb_core.dir/rule
 # codegen rule for target.
 CMakeFiles/vectordb_core.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectordb_core.dir/build.make CMakeFiles/vectordb_core.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/coco/Projects/PipoDB/build/CMakeFiles --progress-num=3,4,5,6 "Finished codegen for target vectordb_core"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/coco/Projects/PipoDB/build/CMakeFiles --progress-num=3,4,5,6,7 "Finished codegen for target vectordb_core"
 .PHONY : CMakeFiles/vectordb_core.dir/codegen
 
 # clean rule for target.
@@ -125,7 +125,7 @@ CMakeFiles/vectordb_app.dir/all: CMakeFiles/vectordb_core.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/vectordb_app.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/coco/Projects/PipoDB/build/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/coco/Projects/PipoDB/build/CMakeFiles 7
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/vectordb_app.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/coco/Projects/PipoDB/build/CMakeFiles 0
 .PHONY : CMakeFiles/vectordb_app.dir/rule

@@ -114,11 +114,26 @@ CMakeFiles/vectordb_core.dir/src/Storage.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/vectordb_core.dir/src/Storage.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/coco/Projects/PipoDB/src/Storage.cpp -o CMakeFiles/vectordb_core.dir/src/Storage.cpp.s
 
+CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o: CMakeFiles/vectordb_core.dir/flags.make
+CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o: /home/coco/Projects/PipoDB/src/HNSWIndex.cpp
+CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o: CMakeFiles/vectordb_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/coco/Projects/PipoDB/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o -MF CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o.d -o CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o -c /home/coco/Projects/PipoDB/src/HNSWIndex.cpp
+
+CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/coco/Projects/PipoDB/src/HNSWIndex.cpp > CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.i
+
+CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/coco/Projects/PipoDB/src/HNSWIndex.cpp -o CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.s
+
 # Object files for target vectordb_core
 vectordb_core_OBJECTS = \
 "CMakeFiles/vectordb_core.dir/src/Distance.cpp.o" \
 "CMakeFiles/vectordb_core.dir/src/FlatIndex.cpp.o" \
-"CMakeFiles/vectordb_core.dir/src/Storage.cpp.o"
+"CMakeFiles/vectordb_core.dir/src/Storage.cpp.o" \
+"CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o"
 
 # External object files for target vectordb_core
 vectordb_core_EXTERNAL_OBJECTS =
@@ -126,9 +141,10 @@ vectordb_core_EXTERNAL_OBJECTS =
 libvectordb_core.a: CMakeFiles/vectordb_core.dir/src/Distance.cpp.o
 libvectordb_core.a: CMakeFiles/vectordb_core.dir/src/FlatIndex.cpp.o
 libvectordb_core.a: CMakeFiles/vectordb_core.dir/src/Storage.cpp.o
+libvectordb_core.a: CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o
 libvectordb_core.a: CMakeFiles/vectordb_core.dir/build.make
 libvectordb_core.a: CMakeFiles/vectordb_core.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/coco/Projects/PipoDB/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library libvectordb_core.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/coco/Projects/PipoDB/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX static library libvectordb_core.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/vectordb_core.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/vectordb_core.dir/link.txt --verbose=$(VERBOSE)
 

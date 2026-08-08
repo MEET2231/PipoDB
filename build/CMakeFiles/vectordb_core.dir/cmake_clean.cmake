@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/vectordb_core.dir/src/Distance.cpp.o.d"
   "CMakeFiles/vectordb_core.dir/src/FlatIndex.cpp.o"
   "CMakeFiles/vectordb_core.dir/src/FlatIndex.cpp.o.d"
+  "CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o"
+  "CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o.d"
   "CMakeFiles/vectordb_core.dir/src/Storage.cpp.o"
   "CMakeFiles/vectordb_core.dir/src/Storage.cpp.o.d"
   "libvectordb_core.a"

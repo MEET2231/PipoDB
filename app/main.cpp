@@ -1,36 +1,50 @@
 #include <iostream>
 #include <vector>
-#include <string>
 #include <cassert>
 #include "vectordb/Vector.h"
-#include "vectordb/FlatIndex.h"
+#include "vectordb/HNSWIndex.h"
 
 int main() {
-    std::string db_file = "/home/coco/pipo_vectors.vdb";
+    std::cout << "--- Initializing HNSW Index Test ---" << std::endl;
 
-    std::cout << "--- Step 1: Creating and Saving Index ---" << std::endl;
-    vectordb::FlatIndex index;
-    index.add_vector({101, {1.0f, 2.0f, 3.0f}});
-    index.add_vector({102, {4.0f, 5.0f, 6.0f}});
-    
-    bool saved = index.save(db_file);
-    assert(saved);
-    std::cout << "Saved " << index.size() << " vectors to " << db_file << std::endl;
+    // 1. Create the HNSW index
+    // Parameters: M = 16 (max connections), ef_construction = 200, ef_search = 50
+    vectordb::HNSWIndex hnsw_index(16, 200, 50);
 
-    std::cout << "\n--- Step 2: Loading Index from Disk ---" << std::endl;
-    vectordb::FlatIndex loaded_index;
-    
-    bool loaded = loaded_index.load(db_file);
-    assert(loaded);
-    std::cout << "Loaded " << loaded_index.size() << " vectors from " << db_file << std::endl;
+    // 2. Add test vectors to build the graph
+    std::cout << "Adding vectors to the graph..." << std::endl;
+    hnsw_index.add_vector({1, {1.0f, 1.0f, 1.0f}});
+    hnsw_index.add_vector({2, {2.0f, 2.0f, 2.0f}});
+    hnsw_index.add_vector({3, {9.0f, 9.0f, 9.0f}});
+    hnsw_index.add_vector({4, {2.5f, 2.5f, 2.5f}});
+    hnsw_index.add_vector({5, {0.0f, 0.0f, 0.0f}});
 
-    std::vector< float > query = {1.0f, 2.0f, 3.0f};
-    std::vector< vectordb::SearchResult > results = loaded_index.search(query, 1);
+    std::cout << "Total vectors indexed: " << hnsw_index.size() << std::endl;
+
+    // 3. Define a query vector
+    // We are looking for neighbors close to {2.1, 2.1, 2.1}
+    std::vector< float > query = {2.1f, 2.1f, 2.1f};
+    int k = 2; // We want the top 2 closest vectors
+
+    std::cout << "Searching for top " << k << " nearest neighbors..." << std::endl;
     
-    assert(results.size() == 1);
-    assert(results[0].id == 101);
+    // 4. Perform the graph search
+    std::vector< vectordb::SearchResult > results = hnsw_index.search(query, k);
+
+    // 5. Assert and Print results
+    assert(results.size() == 2 && "Should return exactly 2 results");
     
-    std::cout << "[SUCCESS] Reloaded Vector ID: " << results[0].id << std::endl;
+    // Mathematically, the closest to {2.1, 2.1, 2.1} are:
+    // 1st: ID 2 {2.0, 2.0, 2.0} -> Distance ~ 0.1732
+    // 2nd: ID 4 {2.5, 2.5, 2.5} -> Distance ~ 0.6928
+    assert(results[0].id == 2 && "First closest must be ID 2");
+    assert(results[1].id == 4 && "Second closest must be ID 4");
+
+    for (const auto& res : results) {
+        std::cout << "Vector ID: " << res.id << " | L2 Distance: " << res.distance << std::endl;
+    }
+
+    std::cout << "\n[SUCCESS] HNSW Graph built and searched correctly!" << std::endl;
 
     return 0;
 }

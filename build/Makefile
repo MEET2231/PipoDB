@@ -214,6 +214,30 @@ src/FlatIndex.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectordb_core.dir/build.make CMakeFiles/vectordb_core.dir/src/FlatIndex.cpp.s
 .PHONY : src/FlatIndex.cpp.s
 
+src/HNSWIndex.o: src/HNSWIndex.cpp.o
+.PHONY : src/HNSWIndex.o
+
+# target to build an object file
+src/HNSWIndex.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectordb_core.dir/build.make CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.o
+.PHONY : src/HNSWIndex.cpp.o
+
+src/HNSWIndex.i: src/HNSWIndex.cpp.i
+.PHONY : src/HNSWIndex.i
+
+# target to preprocess a source file
+src/HNSWIndex.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectordb_core.dir/build.make CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.i
+.PHONY : src/HNSWIndex.cpp.i
+
+src/HNSWIndex.s: src/HNSWIndex.cpp.s
+.PHONY : src/HNSWIndex.s
+
+# target to generate assembly for a file
+src/HNSWIndex.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectordb_core.dir/build.make CMakeFiles/vectordb_core.dir/src/HNSWIndex.cpp.s
+.PHONY : src/HNSWIndex.cpp.s
+
 src/Storage.o: src/Storage.cpp.o
 .PHONY : src/Storage.o
 
@@ -257,6 +281,9 @@ help:
 	@echo "... src/FlatIndex.o"
 	@echo "... src/FlatIndex.i"
 	@echo "... src/FlatIndex.s"
+	@echo "... src/HNSWIndex.o"
+	@echo "... src/HNSWIndex.i"
+	@echo "... src/HNSWIndex.s"
 	@echo "... src/Storage.o"
 	@echo "... src/Storage.i"
 	@echo "... src/Storage.s"
