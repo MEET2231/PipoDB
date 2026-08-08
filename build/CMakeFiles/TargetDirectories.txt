@@ -1,4 +1,0 @@
-/home/coco/Projects/PipoDB/build/CMakeFiles/vectordb_core.dir
-/home/coco/Projects/PipoDB/build/CMakeFiles/vectordb_app.dir
-/home/coco/Projects/PipoDB/build/CMakeFiles/edit_cache.dir
-/home/coco/Projects/PipoDB/build/CMakeFiles/rebuild_cache.dir
