@@ -1,0 +1,52 @@
+# Build directories
+build/
+cmake_build/
+dist/
+*.build/
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Compiled objects
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.project
+*.cproject
+.settings/
+
+# Dependencies
+/third_party/
+/deps/
+
+# Database files
+*.vdb
+*.db
+
+# Python/Virtual environments
+__pycache__/
+*.pyc
+venv/
+env/
+
+# Temporary files
+*.tmp
+*.temp
