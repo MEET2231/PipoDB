@@ -2,11 +2,16 @@
 #include <vector>
 #include <unordered_map>
 #include <random>
+#include <string>
 #include "vectordb/Index.h"
 
 namespace vectordb {
 
+    class Storage;
+
     class HNSWIndex : public Index {
+        friend class Storage;
+
     private:
         // A single vector and its graph connections
         struct Node {
@@ -52,6 +57,9 @@ namespace vectordb {
         void add_vector(const Vector& vec) override;
         std::vector< SearchResult > search(const std::vector< float >& query, int k) const override;
         size_t size() const override;
+
+        bool save(const std::string& filepath) const;
+        bool load(const std::string& filepath);
     };
 
 }

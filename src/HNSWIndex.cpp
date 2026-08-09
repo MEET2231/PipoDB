@@ -1,5 +1,6 @@
 #include "vectordb/HNSWIndex.h"
 #include "vectordb/Distance.h"
+#include "vectordb/Storage.h"
 #include <queue>
 #include <stdexcept>
 #include <algorithm>
@@ -237,6 +238,14 @@ namespace vectordb {
             entry_point_id_ = vec.id;
             max_graph_level_ = target_level;
         }
+    }
+
+    bool HNSWIndex::save(const std::string& filepath) const {
+        return Storage::save_hnsw_to_file(filepath, *this);
+    }
+
+    bool HNSWIndex::load(const std::string& filepath) {
+        return Storage::load_hnsw_from_file(filepath, *this);
     }
 }
 

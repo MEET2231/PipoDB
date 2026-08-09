@@ -40,6 +40,7 @@ Makefile
 # Database files
 *.vdb
 *.db
+*.bin
 
 # Python/Virtual environments
 __pycache__/

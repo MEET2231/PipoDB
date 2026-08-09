@@ -21,3 +21,6 @@ add_library(vectordb_core
 # Build executable and link against vectordb_core
 add_executable(vectordb_app app/main.cpp)
 target_link_libraries(vectordb_app PRIVATE vectordb_core)
+
+enable_testing()
+add_subdirectory(tests)
