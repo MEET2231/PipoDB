@@ -27,6 +27,12 @@ namespace vectordb {
         std::string payload_json;
     };
 
+    struct UpsertResult {
+        VectorID id;           // Assigned VectorID (either updated or newly inserted)
+        bool is_updated;       // true if an existing near vector was updated; false if inserted
+        float distance;        // Distance to the nearest neighbor found (-1.0f if collection was empty)
+    };
+
     class Collection {
     private:
         CollectionParams params_;
@@ -48,6 +54,15 @@ namespace vectordb {
         // Returns assigned VectorID. If explicit_id == 0, auto-generates ID.
         VectorID add_vector(const std::vector<float>& data, const std::string& payload_json = "", VectorID explicit_id = 0);
         bool add_vector(VectorID id, const std::vector<float>& data, const std::string& payload_json);
+        bool remove_vector(VectorID id);
+
+        // Semantic Near-Duplicate Upsert: Updates existing vector payload if distance <= distance_threshold
+        UpsertResult upsert_if_close(
+            const std::vector<float>& data,
+            const std::string& payload_json = "",
+            float distance_threshold = 0.05f,
+            VectorID explicit_id = 0
+        );
 
         std::vector<CollectionHit> search(const std::vector<float>& query, int k, bool include_payload = true) const;
         bool get_vector(VectorID id, std::vector<float>& out_data, std::string& out_payload) const;

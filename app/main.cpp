@@ -61,11 +61,29 @@ int main() {
                   << " | Payload: " << hit.payload_json << std::endl;
     }
 
-    std::cout << "\n4. Snapshotting Database Catalog & Collections to disk..." << std::endl;
+    std::cout << "\n4. Testing Semantic Near-Duplicate Upsert (upsert_if_close)..." << std::endl;
+    std::cout << "Inserting near-duplicate vector {2.01, 2.01, 2.01} with distance_threshold = 0.1..." << std::endl;
+    auto up_res = db.upsert_if_close("documents", {2.01f, 2.01f, 2.01f}, "{\"title\": \"Vector Databases 101 (Revised Edition)\"}", 0.1f);
+    std::cout << "Upsert Result -> ID: " << up_res.result.id 
+              << " | Is Updated: " << (up_res.result.is_updated ? "YES (Merged Near-Duplicate)" : "NO (New Insert)") 
+              << " | Distance: " << up_res.result.distance << std::endl;
+
+    std::cout << "\n5. Testing Vector Deletion & Graph Edge Repair..." << std::endl;
+    std::cout << "Deleting Vector ID 102 from 'documents'..." << std::endl;
+    bool removed = db.remove_vector("documents", 102);
+    std::cout << "Vector 102 removed: " << (removed ? "YES" : "NO") << std::endl;
+    std::cout << "Remaining vectors in 'documents': " << doc_col->size() << std::endl;
+
+    auto res_after = db.search(req);
+    std::cout << "New Top Result Vector ID: " << res_after.hits[0].id 
+              << " | Distance: " << res_after.hits[0].distance 
+              << " | Payload: " << res_after.hits[0].payload_json << std::endl;
+
+    std::cout << "\n6. Snapshotting Database Catalog & Collections to disk..." << std::endl;
     bool snap = db.snapshot();
     std::cout << "Snapshot saved to " << db_path << ": " << (snap ? "SUCCESS" : "FAILED") << std::endl;
 
-    std::cout << "\n5. Re-opening Database in fresh instance..." << std::endl;
+    std::cout << "\n7. Re-opening Database in fresh instance..." << std::endl;
     vectordb::Database db_reopened(db_path);
     db_reopened.open();
     std::cout << "Reopened collections count: " << db_reopened.list_collections().size() << std::endl;
@@ -75,7 +93,7 @@ int main() {
               << " | Payload: " << re_res.hits[0].payload_json << std::endl;
 
     std::cout << "\n==================================================" << std::endl;
-    std::cout << " [SUCCESS] PipoDB Engine Multi-Collection Demo Complete! " << std::endl;
+    std::cout << " [SUCCESS] PipoDB Engine Feature Demo Complete! " << std::endl;
     std::cout << "==================================================" << std::endl;
 
     return 0;

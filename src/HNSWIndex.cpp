@@ -249,5 +249,100 @@ namespace vectordb {
     bool HNSWIndex::load(const std::string& filepath) {
         return Storage::load_hnsw_from_file(filepath, *this);
     }
+
+    bool HNSWIndex::remove_vector(VectorID id) {
+        auto it = nodes_.find(id);
+        if (it == nodes_.end()) {
+            return false;
+        }
+
+        const Node& target_node = it->second;
+        int target_max_level = target_node.max_level();
+        size_t dim = target_node.data.size();
+
+        // Step 1: Multi-layer Edge Repair & Rewiring
+        for (int layer = 0; layer <= target_max_level; ++layer) {
+            const auto& target_neighbors = target_node.neighbors[layer];
+            int max_m = (layer == 0) ? static_cast<int>(M_max_0_) : static_cast<int>(M_);
+
+            for (VectorID n_id : target_neighbors) {
+                auto n_it = nodes_.find(n_id);
+                if (n_it == nodes_.end()) continue;
+
+                auto& n_edges = n_it->second.neighbors[layer];
+
+                // 1a. Remove deleted node from neighbor's edge list
+                n_edges.erase(std::remove(n_edges.begin(), n_edges.end(), id), n_edges.end());
+
+                // 1b. Rewire: Connect neighbor to other neighbors of deleted node at this layer
+                for (VectorID other_n_id : target_neighbors) {
+                    if (other_n_id == n_id) continue;
+                    if (std::find(n_edges.begin(), n_edges.end(), other_n_id) == n_edges.end()) {
+                        n_edges.push_back(other_n_id);
+                    }
+                }
+
+                // 1c. Prune connections if overloaded
+                if (n_edges.size() > static_cast<size_t>(max_m)) {
+                    std::vector<SearchResult> edge_distances;
+                    for (VectorID edge_id : n_edges) {
+                        float dist = Distance::compute(
+                            n_it->second.data.data(),
+                            nodes_[edge_id].data.data(),
+                            dim,
+                            metric_
+                        );
+                        edge_distances.push_back({dist, edge_id});
+                    }
+
+                    std::sort(edge_distances.begin(), edge_distances.end(),
+                        [](const SearchResult& a, const SearchResult& b) {
+                            return a.distance < b.distance;
+                        });
+
+                    n_edges.clear();
+                    for (int j = 0; j < max_m; ++j) {
+                        n_edges.push_back(edge_distances[j].id);
+                    }
+                }
+            }
+        }
+
+        // Step 2: Erase target node
+        nodes_.erase(it);
+
+        // Step 3: Entry Point Promotion & Level Demotion Loop
+        if (nodes_.empty()) {
+            is_empty_ = true;
+            max_graph_level_ = -1;
+            entry_point_id_ = 0;
+            return true;
+        }
+
+        while (max_graph_level_ >= 0) {
+            VectorID new_ep = 0;
+            for (const auto& pair : nodes_) {
+                if (pair.second.max_level() >= max_graph_level_) {
+                    new_ep = pair.first;
+                    break;
+                }
+            }
+
+            if (new_ep != 0) {
+                entry_point_id_ = new_ep;
+                break;
+            }
+
+            // Top layer empty -> demote max_graph_level_
+            max_graph_level_--;
+        }
+
+        if (max_graph_level_ < 0) {
+            is_empty_ = true;
+            entry_point_id_ = 0;
+        }
+
+        return true;
+    }
 }
 

@@ -23,6 +23,12 @@ namespace vectordb {
         std::string error_message;
     };
 
+    struct DBUpsertResponse {
+        UpsertResult result;
+        bool success = false;
+        std::string error_message;
+    };
+
     class Database {
     private:
         std::string db_path_;
@@ -51,6 +57,16 @@ namespace vectordb {
         // DML (Vector Query & Routing)
         VectorID insert_vector(const std::string& collection_name, const std::vector<float>& data, const std::string& payload_json = "", VectorID explicit_id = 0);
         bool insert_vector(const std::string& collection_name, VectorID id, const std::vector<float>& data, const std::string& payload_json);
+        bool remove_vector(const std::string& collection_name, VectorID id);
+
+        DBUpsertResponse upsert_if_close(
+            const std::string& collection_name,
+            const std::vector<float>& data,
+            const std::string& payload_json = "",
+            float distance_threshold = 0.05f,
+            VectorID explicit_id = 0
+        );
+
         DBQueryResponse search(const DBQueryRequest& request) const;
     };
 

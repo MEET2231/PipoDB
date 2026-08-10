@@ -11,6 +11,17 @@ namespace vectordb {
         vectors_.push_back(vec);
     }
 
+    bool FlatIndex::remove_vector(VectorID id) {
+        auto it = std::remove_if(vectors_.begin(), vectors_.end(), [id](const Vector& vec) {
+            return vec.id == id;
+        });
+        if (it != vectors_.end()) {
+            vectors_.erase(it, vectors_.end());
+            return true;
+        }
+        return false;
+    }
+
     size_t FlatIndex::size() const {
         return vectors_.size();
     }

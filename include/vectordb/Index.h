@@ -9,6 +9,7 @@ namespace vectordb {
         virtual ~Index() = default;
 
         virtual void add_vector(const Vector& vec) = 0;
+        virtual bool remove_vector(VectorID id) = 0;
 
         virtual std::vector<SearchResult> search(const std::vector<float>& query, int k) const = 0;
 

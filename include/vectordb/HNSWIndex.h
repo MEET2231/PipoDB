@@ -59,6 +59,7 @@ namespace vectordb {
         MetricType metric() const { return metric_; }
 
         void add_vector(const Vector& vec) override;
+        bool remove_vector(VectorID id) override;
         std::vector< SearchResult > search(const std::vector< float >& query, int k) const override;
         size_t size() const override;
 

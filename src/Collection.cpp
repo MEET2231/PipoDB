@@ -67,6 +67,54 @@ namespace vectordb {
         return add_vector(data, payload_json, id) != 0;
     }
 
+    bool Collection::remove_vector(VectorID id) {
+        std::unique_lock<std::shared_mutex> lock(collection_mutex_);
+        if (!index_ || !index_->remove_vector(id)) {
+            return false;
+        }
+        payloads_.erase(id);
+        return true;
+    }
+
+    UpsertResult Collection::upsert_if_close(const std::vector<float>& data, const std::string& payload_json, float distance_threshold, VectorID explicit_id) {
+        std::unique_lock<std::shared_mutex> lock(collection_mutex_);
+        if (data.size() != params_.dimension) {
+            throw std::invalid_argument("Vector dimension does not match collection dimension.");
+        }
+
+        // Search for 1-nearest neighbor if index is non-empty
+        if (index_ && index_->size() > 0) {
+            auto hits = index_->search(data, 1);
+            if (!hits.empty()) {
+                float near_dist = hits[0].distance;
+                VectorID near_id = hits[0].id;
+
+                if (near_dist <= distance_threshold) {
+                    // Close enough! Update payload & return existing near_id
+                    payloads_[near_id] = payload_json;
+                    return UpsertResult{ near_id, true, near_dist };
+                }
+            }
+        }
+
+        // Not close enough: Insert as new vector
+        VectorID assigned_id = explicit_id;
+        if (assigned_id == 0) {
+            do {
+                assigned_id = next_auto_id_.fetch_add(1);
+            } while (assigned_id == 0 || payloads_.find(assigned_id) != payloads_.end());
+        } else {
+            if (payloads_.find(assigned_id) != payloads_.end()) {
+                throw std::invalid_argument("VectorID " + std::to_string(assigned_id) + " already exists in collection.");
+            }
+        }
+
+        index_->add_vector({assigned_id, data});
+        payloads_[assigned_id] = payload_json;
+
+        return UpsertResult{ assigned_id, false, -1.0f };
+    }
+
     std::vector<CollectionHit> Collection::search(const std::vector<float>& query, int k, bool include_payload) const {
         std::shared_lock<std::shared_mutex> lock(collection_mutex_);
         if (query.size() != params_.dimension) {

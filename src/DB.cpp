@@ -173,6 +173,39 @@ namespace vectordb {
         return insert_vector(collection_name, data, payload_json, id) != 0;
     }
 
+    bool Database::remove_vector(const std::string& collection_name, VectorID id) {
+        std::shared_ptr<Collection> col;
+        {
+            std::shared_lock<std::shared_mutex> lock(db_mutex_);
+            auto it = collections_.find(collection_name);
+            if (it == collections_.end()) {
+                return false;
+            }
+            col = it->second;
+        }
+
+        return col->remove_vector(id);
+    }
+
+    DBUpsertResponse Database::upsert_if_close(const std::string& collection_name, const std::vector<float>& data, const std::string& payload_json, float distance_threshold, VectorID explicit_id) {
+        std::shared_ptr<Collection> col;
+        {
+            std::shared_lock<std::shared_mutex> lock(db_mutex_);
+            auto it = collections_.find(collection_name);
+            if (it == collections_.end()) {
+                return DBUpsertResponse{ UpsertResult{0, false, -1.0f}, false, "Collection '" + collection_name + "' not found." };
+            }
+            col = it->second;
+        }
+
+        try {
+            auto res = col->upsert_if_close(data, payload_json, distance_threshold, explicit_id);
+            return DBUpsertResponse{ res, true, "" };
+        } catch (const std::exception& ex) {
+            return DBUpsertResponse{ UpsertResult{0, false, -1.0f}, false, ex.what() };
+        }
+    }
+
     DBQueryResponse Database::search(const DBQueryRequest& request) const {
         auto start_time = std::chrono::high_resolution_clock::now();
 

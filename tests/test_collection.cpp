@@ -74,6 +74,42 @@ void test_auto_id_generation() {
     std::cout << "[PASS] Auto-ID Generation & INT_MAX Edge Case Test Passed!" << std::endl;
 }
 
+void test_upsert_if_close() {
+    std::cout << "[TEST] Running Semantic Near-Duplicate Upsert Test..." << std::endl;
+
+    vectordb::CollectionParams params;
+    params.name = "upsert_col";
+    params.dimension = 3;
+    params.metric = "L2";
+    params.index_type = "HNSW";
+
+    vectordb::Collection collection(params);
+
+    // 1. Initial insert of V1 {1.0, 1.0, 1.0}
+    auto u1 = collection.upsert_if_close({1.0f, 1.0f, 1.0f}, "{\"version\": 1}", 0.1f);
+    assert(u1.is_updated == false);
+    assert(u1.id == 1);
+    assert(collection.size() == 1);
+
+    // 2. Insert V2 {1.01, 1.01, 1.01} (Dist ~ 0.0173 <= 0.1) -> Should UPDATE V1
+    auto u2 = collection.upsert_if_close({1.01f, 1.01f, 1.01f}, "{\"version\": 2, \"updated\": true}", 0.1f);
+    assert(u2.is_updated == true);
+    assert(u2.id == 1); // Returns existing ID 1
+    assert(collection.size() == 1); // Size remains 1
+
+    // Verify payload updated
+    auto hits = collection.search({1.0f, 1.0f, 1.0f}, 1, true);
+    assert(hits[0].payload_json == "{\"version\": 2, \"updated\": true}");
+
+    // 3. Insert V3 {5.0, 5.0, 5.0} (Dist > 0.1) -> Should INSERT as new Vector
+    auto u3 = collection.upsert_if_close({5.0f, 5.0f, 5.0f}, "{\"version\": 1, \"new\": true}", 0.1f);
+    assert(u3.is_updated == false);
+    assert(u3.id == 2);
+    assert(collection.size() == 2);
+
+    std::cout << "[PASS] Semantic Near-Duplicate Upsert Test Passed!" << std::endl;
+}
+
 void test_collection_persistence() {
     std::cout << "[TEST] Running Collection Persistence Test..." << std::endl;
 
@@ -105,6 +141,7 @@ void test_collection_persistence() {
 int main() {
     test_collection_operations();
     test_auto_id_generation();
+    test_upsert_if_close();
     test_collection_persistence();
     std::cout << "\n[ALL COLLECTION TESTS PASSED]" << std::endl;
     return 0;
