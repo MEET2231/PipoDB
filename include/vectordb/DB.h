@@ -49,7 +49,8 @@ namespace vectordb {
         std::shared_ptr<Collection> get_collection(const std::string& collection_name) const;
 
         // DML (Vector Query & Routing)
-        bool insert_vector(const std::string& collection_name, VectorID id, const std::vector<float>& data, const std::string& payload_json = "");
+        VectorID insert_vector(const std::string& collection_name, const std::vector<float>& data, const std::string& payload_json = "", VectorID explicit_id = 0);
+        bool insert_vector(const std::string& collection_name, VectorID id, const std::vector<float>& data, const std::string& payload_json);
         DBQueryResponse search(const DBQueryRequest& request) const;
     };
 

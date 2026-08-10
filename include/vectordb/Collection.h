@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <memory>
 #include <shared_mutex>
+#include <atomic>
 #include "vectordb/Vector.h"
 #include "vectordb/Index.h"
 
@@ -31,6 +32,7 @@ namespace vectordb {
         CollectionParams params_;
         std::unique_ptr<Index> index_;
         std::unordered_map<VectorID, std::string> payloads_;
+        std::atomic<VectorID> next_auto_id_{1};
         mutable std::shared_mutex collection_mutex_;
 
     public:
@@ -43,7 +45,10 @@ namespace vectordb {
         size_t dimension() const { return params_.dimension; }
 
         // Operations
-        bool add_vector(VectorID id, const std::vector<float>& data, const std::string& payload_json = "");
+        // Returns assigned VectorID. If explicit_id == 0, auto-generates ID.
+        VectorID add_vector(const std::vector<float>& data, const std::string& payload_json = "", VectorID explicit_id = 0);
+        bool add_vector(VectorID id, const std::vector<float>& data, const std::string& payload_json);
+
         std::vector<CollectionHit> search(const std::vector<float>& query, int k, bool include_payload = true) const;
         bool get_vector(VectorID id, std::vector<float>& out_data, std::string& out_payload) const;
 

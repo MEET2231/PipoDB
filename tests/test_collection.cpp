@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cassert>
 #include <cstdio>
+#include <stdexcept>
 #include <sys/stat.h>
 #include "vectordb/Collection.h"
 
@@ -30,6 +31,47 @@ void test_collection_operations() {
     assert(hits[1].id == 3);
 
     std::cout << "[PASS] Collection Operations Test Passed!" << std::endl;
+}
+
+void test_auto_id_generation() {
+    std::cout << "[TEST] Running Auto-ID Generation & INT_MAX Edge Case Test..." << std::endl;
+
+    vectordb::CollectionParams params;
+    params.name = "auto_id_col";
+    params.dimension = 2;
+    params.index_type = "HNSW";
+
+    vectordb::Collection collection(params);
+
+    // 1. Omit ID: Auto-generates ID 1
+    vectordb::VectorID id1 = collection.add_vector({1.0f, 1.0f}, "{\"auto\": 1}");
+    assert(id1 == 1);
+
+    // 2. Omit ID: Auto-generates ID 2
+    vectordb::VectorID id2 = collection.add_vector({2.0f, 2.0f}, "{\"auto\": 2}");
+    assert(id2 == 2);
+
+    // 3. Insert large explicit ID (INT_MAX = 2147483647)
+    vectordb::VectorID explicit_id = 2147483647;
+    vectordb::VectorID id_large = collection.add_vector({9.0f, 9.0f}, "{\"large\": true}", explicit_id);
+    assert(id_large == explicit_id);
+
+    // 4. Omit ID again: Auto-generates ID 3 (does NOT skip to INT_MAX + 1!)
+    vectordb::VectorID id3 = collection.add_vector({3.0f, 3.0f}, "{\"auto\": 3}");
+    assert(id3 == 3);
+
+    // 5. Try inserting duplicate explicit ID (should throw std::invalid_argument)
+    bool exception_caught = false;
+    try {
+        collection.add_vector({9.0f, 9.0f}, "{\"duplicate\": true}", explicit_id);
+    } catch (const std::invalid_argument&) {
+        exception_caught = true;
+    }
+    assert(exception_caught && "Inserting duplicate explicit ID must throw exception");
+
+    assert(collection.size() == 4);
+
+    std::cout << "[PASS] Auto-ID Generation & INT_MAX Edge Case Test Passed!" << std::endl;
 }
 
 void test_collection_persistence() {
@@ -62,6 +104,7 @@ void test_collection_persistence() {
 
 int main() {
     test_collection_operations();
+    test_auto_id_generation();
     test_collection_persistence();
     std::cout << "\n[ALL COLLECTION TESTS PASSED]" << std::endl;
     return 0;

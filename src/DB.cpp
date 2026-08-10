@@ -155,18 +155,22 @@ namespace vectordb {
         return nullptr;
     }
 
-    bool Database::insert_vector(const std::string& collection_name, VectorID id, const std::vector<float>& data, const std::string& payload_json) {
+    VectorID Database::insert_vector(const std::string& collection_name, const std::vector<float>& data, const std::string& payload_json, VectorID explicit_id) {
         std::shared_ptr<Collection> col;
         {
             std::shared_lock<std::shared_mutex> lock(db_mutex_);
             auto it = collections_.find(collection_name);
             if (it == collections_.end()) {
-                return false;
+                return 0;
             }
             col = it->second;
         }
 
-        return col->add_vector(id, data, payload_json);
+        return col->add_vector(data, payload_json, explicit_id);
+    }
+
+    bool Database::insert_vector(const std::string& collection_name, VectorID id, const std::vector<float>& data, const std::string& payload_json) {
+        return insert_vector(collection_name, data, payload_json, id) != 0;
     }
 
     DBQueryResponse Database::search(const DBQueryRequest& request) const {

@@ -41,15 +41,30 @@ namespace vectordb {
         return index_ ? index_->size() : 0;
     }
 
-    bool Collection::add_vector(VectorID id, const std::vector<float>& data, const std::string& payload_json) {
+    VectorID Collection::add_vector(const std::vector<float>& data, const std::string& payload_json, VectorID explicit_id) {
         std::unique_lock<std::shared_mutex> lock(collection_mutex_);
         if (data.size() != params_.dimension) {
             throw std::invalid_argument("Vector dimension does not match collection dimension.");
         }
 
-        index_->add_vector({id, data});
-        payloads_[id] = payload_json;
-        return true;
+        VectorID assigned_id = explicit_id;
+        if (assigned_id == 0) {
+            do {
+                assigned_id = next_auto_id_.fetch_add(1);
+            } while (assigned_id == 0 || payloads_.find(assigned_id) != payloads_.end());
+        } else {
+            if (payloads_.find(assigned_id) != payloads_.end()) {
+                throw std::invalid_argument("VectorID " + std::to_string(assigned_id) + " already exists in collection.");
+            }
+        }
+
+        index_->add_vector({assigned_id, data});
+        payloads_[assigned_id] = payload_json;
+        return assigned_id;
+    }
+
+    bool Collection::add_vector(VectorID id, const std::vector<float>& data, const std::string& payload_json) {
+        return add_vector(data, payload_json, id) != 0;
     }
 
     std::vector<CollectionHit> Collection::search(const std::vector<float>& query, int k, bool include_payload) const {
