@@ -4,6 +4,7 @@
 #include <random>
 #include <string>
 #include "vectordb/Index.h"
+#include "vectordb/Distance.h"
 
 namespace vectordb {
 
@@ -32,6 +33,7 @@ namespace vectordb {
         size_t ef_construction_;   // Candidate list size during insertion (e.g., 200)
         size_t ef_search_;         // Candidate list size during search (e.g., 50)
         double mult_;              // Multiplier for random level generation
+        MetricType metric_;        // Distance Metric (L2, COSINE, IP)
 
         // The Graph Database
         std::unordered_map< VectorID, Node > nodes_;
@@ -51,8 +53,10 @@ namespace vectordb {
 
     public:
         // Constructor sets up the hyperparameters
-        HNSWIndex(size_t M = 16, size_t ef_construction = 200, size_t ef_search = 50);
+        HNSWIndex(size_t M = 16, size_t ef_construction = 200, size_t ef_search = 50, MetricType metric = MetricType::L2);
         ~HNSWIndex() override = default;
+
+        MetricType metric() const { return metric_; }
 
         void add_vector(const Vector& vec) override;
         std::vector< SearchResult > search(const std::vector< float >& query, int k) const override;

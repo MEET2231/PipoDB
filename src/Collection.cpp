@@ -28,10 +28,11 @@ namespace vectordb {
     Collection::Collection(const CollectionParams& params)
         : params_(params) 
     {
+        MetricType metric = Distance::parse_metric(params_.metric);
         if (params_.index_type == "FLAT") {
-            index_ = std::make_unique<FlatIndex>();
+            index_ = std::make_unique<FlatIndex>(metric);
         } else {
-            index_ = std::make_unique<HNSWIndex>(params_.M, params_.ef_construction, params_.ef_search);
+            index_ = std::make_unique<HNSWIndex>(params_.M, params_.ef_construction, params_.ef_search, metric);
         }
     }
 
@@ -168,12 +169,13 @@ namespace vectordb {
         cfg.close();
 
         // 2. Re-instantiate Index
+        MetricType metric = Distance::parse_metric(params_.metric);
         if (params_.index_type == "FLAT") {
-            index_ = std::make_unique<FlatIndex>();
+            index_ = std::make_unique<FlatIndex>(metric);
             auto* flat = dynamic_cast<FlatIndex*>(index_.get());
             if (!flat || !flat->load(dir_path + "/index.bin")) return false;
         } else {
-            index_ = std::make_unique<HNSWIndex>(params_.M, params_.ef_construction, params_.ef_search);
+            index_ = std::make_unique<HNSWIndex>(params_.M, params_.ef_construction, params_.ef_search, metric);
             auto* hnsw = dynamic_cast<HNSWIndex*>(index_.get());
             if (!hnsw || !hnsw->load(dir_path + "/index.bin")) return false;
         }

@@ -2,16 +2,20 @@
 #include <vector>
 #include <string>
 #include "vectordb/Index.h"
+#include "vectordb/Distance.h"
 
 namespace vectordb {
 
     class FlatIndex : public Index {
     private:
         std::vector<Vector> vectors_;
+        MetricType metric_;
 
     public:
-        FlatIndex() = default;
+        explicit FlatIndex(MetricType metric = MetricType::L2) : metric_(metric) {}
         ~FlatIndex() override = default;
+
+        MetricType metric() const { return metric_; }
 
         void add_vector(const Vector& vec) override;
         std::vector<SearchResult> search(const std::vector<float>& query, int k) const override;

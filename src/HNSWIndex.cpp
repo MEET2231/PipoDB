@@ -10,11 +10,12 @@
 namespace vectordb {
 
     // 1. Initialize hyperparameters and random generator
-    HNSWIndex::HNSWIndex(size_t M, size_t ef_construction, size_t ef_search)
+    HNSWIndex::HNSWIndex(size_t M, size_t ef_construction, size_t ef_search, MetricType metric)
         : M_(M), 
           M_max_0_(2 * M), 
           ef_construction_(ef_construction), 
           ef_search_(ef_search),
+          metric_(metric),
           max_graph_level_(-1), 
           is_empty_(true),
           rng_(1337), // Fixed seed for reproducibility during testing
@@ -49,7 +50,7 @@ namespace vectordb {
         visited.insert(entry_point);
 
         const Node& ep_node = nodes_.at(entry_point);
-        float ep_dist = Distance::euclidean(query.data(), ep_node.data.data(), query.size());
+        float ep_dist = Distance::compute(query.data(), ep_node.data.data(), query.size(), metric_);
 
         // Min-Heap: Closest nodes we should explore next
         auto min_cmp = [](const SearchResult& a, const SearchResult& b) { return a.distance > b.distance; };
@@ -85,7 +86,7 @@ namespace vectordb {
                     visited.insert(neighbor_id);
 
                     const Node& neighbor_node = nodes_.at(neighbor_id);
-                    float dist = Distance::euclidean(query.data(), neighbor_node.data.data(), query.size());
+                    float dist = Distance::compute(query.data(), neighbor_node.data.data(), query.size(), metric_);
 
                     furthest = top_results.top();
                     
@@ -206,10 +207,11 @@ namespace vectordb {
                     
                     // Recalculate distance from the neighbor to all of its current connections
                     for (VectorID edge_id : neighbor_edges) {
-                        float dist = Distance::euclidean(
+                        float dist = Distance::compute(
                             nodes_[neighbor_id].data.data(), 
                             nodes_[edge_id].data.data(), 
-                            dim
+                            dim,
+                            metric_
                         );
                         edge_distances.push_back({dist, edge_id});
                     }

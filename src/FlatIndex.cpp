@@ -32,7 +32,7 @@ namespace vectordb {
         std::priority_queue<SearchResult, std::vector<SearchResult>, decltype(cmp)> max_heap(cmp);
 
         for (const auto& vec : vectors_) {
-            float dist = Distance::euclidean(query, vec.data);
+            float dist = Distance::compute(query, vec.data, metric_);
             max_heap.push(SearchResult{dist, vec.id});
 
             if (max_heap.size() > static_cast<size_t>(k)) {
