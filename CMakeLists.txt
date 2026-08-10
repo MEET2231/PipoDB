@@ -16,6 +16,8 @@ add_library(vectordb_core
     src/FlatIndex.cpp
     src/Storage.cpp
     src/HNSWIndex.cpp
+    src/Collection.cpp
+    src/DB.cpp
 )
 
 # Build executable and link against vectordb_core

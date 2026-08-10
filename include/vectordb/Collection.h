@@ -1,0 +1,55 @@
+#pragma once
+
+#include <string>
+#include <vector>
+#include <unordered_map>
+#include <memory>
+#include <shared_mutex>
+#include "vectordb/Vector.h"
+#include "vectordb/Index.h"
+
+namespace vectordb {
+
+    struct CollectionParams {
+        std::string name;
+        size_t dimension = 128;
+        std::string metric = "L2";        // "L2", "COSINE"
+        std::string index_type = "HNSW";  // "HNSW", "FLAT"
+        size_t M = 16;
+        size_t ef_construction = 200;
+        size_t ef_search = 50;
+    };
+
+    struct CollectionHit {
+        VectorID id;
+        float distance;
+        std::string payload_json;
+    };
+
+    class Collection {
+    private:
+        CollectionParams params_;
+        std::unique_ptr<Index> index_;
+        std::unordered_map<VectorID, std::string> payloads_;
+        mutable std::shared_mutex collection_mutex_;
+
+    public:
+        explicit Collection(const CollectionParams& params);
+        ~Collection() = default;
+
+        // Information & Configuration
+        const CollectionParams& params() const { return params_; }
+        size_t size() const;
+        size_t dimension() const { return params_.dimension; }
+
+        // Operations
+        bool add_vector(VectorID id, const std::vector<float>& data, const std::string& payload_json = "");
+        std::vector<CollectionHit> search(const std::vector<float>& query, int k, bool include_payload = true) const;
+        bool get_vector(VectorID id, std::vector<float>& out_data, std::string& out_payload) const;
+
+        // Serialization
+        bool save_to_dir(const std::string& dir_path) const;
+        bool load_from_dir(const std::string& dir_path);
+    };
+
+}

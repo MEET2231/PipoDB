@@ -41,6 +41,8 @@ Makefile
 *.vdb
 *.db
 *.bin
+pipodb_demo_data/
+temp_*
 
 # Python/Virtual environments
 __pycache__/

@@ -9,3 +9,11 @@ add_test(NAME test_index COMMAND test_index)
 add_executable(test_distance test_distance.cpp)
 target_link_libraries(test_distance PRIVATE vectordb_core)
 add_test(NAME test_distance COMMAND test_distance)
+
+add_executable(test_collection test_collection.cpp)
+target_link_libraries(test_collection PRIVATE vectordb_core)
+add_test(NAME test_collection COMMAND test_collection)
+
+add_executable(test_db test_db.cpp)
+target_link_libraries(test_db PRIVATE vectordb_core)
+add_test(NAME test_db COMMAND test_db)

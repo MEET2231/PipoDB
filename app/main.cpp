@@ -1,67 +1,82 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
-#include "vectordb/Vector.h"
-#include "vectordb/HNSWIndex.h"
+#include "vectordb/DB.h"
 
 int main() {
-    std::cout << "--- Initializing HNSW Index Test ---" << std::endl;
+    std::cout << "==================================================" << std::endl;
+    std::cout << "        PipoDB Vector Database Engine Demo        " << std::endl;
+    std::cout << "==================================================" << std::endl;
 
-    // 1. Create the HNSW index
-    // Parameters: M = 16 (max connections), ef_construction = 200, ef_search = 50
-    vectordb::HNSWIndex hnsw_index(16, 200, 50);
+    std::string db_path = "./pipodb_demo_data";
+    vectordb::Database db(db_path);
 
-    // 2. Add test vectors to build the graph
-    std::cout << "Adding vectors to the graph..." << std::endl;
-    hnsw_index.add_vector({1, {1.0f, 1.0f, 1.0f}});
-    hnsw_index.add_vector({2, {2.0f, 2.0f, 2.0f}});
-    hnsw_index.add_vector({3, {9.0f, 9.0f, 9.0f}});
-    hnsw_index.add_vector({4, {2.5f, 2.5f, 2.5f}});
-    hnsw_index.add_vector({5, {0.0f, 0.0f, 0.0f}});
+    std::cout << "\n1. Creating Collections..." << std::endl;
+    vectordb::CollectionParams doc_params;
+    doc_params.name = "documents";
+    doc_params.dimension = 3;
+    doc_params.index_type = "HNSW";
+    doc_params.M = 16;
 
-    std::cout << "Total vectors indexed: " << hnsw_index.size() << std::endl;
+    vectordb::CollectionParams user_params;
+    user_params.name = "users";
+    user_params.dimension = 3;
+    user_params.index_type = "FLAT";
 
-    // 3. Define a query vector
-    std::vector< float > query = {2.1f, 2.1f, 2.1f};
-    int k = 2; // We want the top 2 closest vectors
+    bool c1 = db.create_collection(doc_params);
+    bool c2 = db.create_collection(user_params);
+    std::cout << "Collection 'documents' created: " << (c1 ? "YES" : "NO") << std::endl;
+    std::cout << "Collection 'users' created: " << (c2 ? "YES" : "NO") << std::endl;
 
-    std::cout << "Searching for top " << k << " nearest neighbors on in-memory index..." << std::endl;
-    
-    // 4. Perform the graph search
-    std::vector< vectordb::SearchResult > results = hnsw_index.search(query, k);
+    auto collections = db.list_collections();
+    std::cout << "Active Database Collections (" << collections.size() << "): ";
+    for (const auto& name : collections) {
+        std::cout << name << " ";
+    }
+    std::cout << std::endl;
 
-    assert(results.size() == 2 && "Should return exactly 2 results");
-    assert(results[0].id == 2 && "First closest must be ID 2");
-    assert(results[1].id == 4 && "Second closest must be ID 4");
+    std::cout << "\n2. Inserting Vectors with JSON Payload Metadata..." << std::endl;
+    db.insert_vector("documents", 101, {1.0f, 1.0f, 1.0f}, "{\"title\": \"Introduction to C++\", \"author\": \"Bjarne\"}");
+    db.insert_vector("documents", 102, {2.0f, 2.0f, 2.0f}, "{\"title\": \"Vector Databases 101\", \"author\": \"PipoDB\"}");
+    db.insert_vector("documents", 103, {9.0f, 9.0f, 9.0f}, "{\"title\": \"Deep Learning Embeddings\", \"author\": \"AI Team\"}");
 
-    for (const auto& res : results) {
-        std::cout << "Vector ID: " << res.id << " | L2 Distance: " << res.distance << std::endl;
+    auto doc_col = db.get_collection("documents");
+    std::cout << "Total vectors in 'documents': " << doc_col->size() << std::endl;
+
+    std::cout << "\n3. Performing Similarity Search Query..." << std::endl;
+    vectordb::DBQueryRequest req;
+    req.collection_name = "documents";
+    req.query_vector = {2.1f, 2.1f, 2.1f};
+    req.top_k = 2;
+    req.include_payload = true;
+
+    auto res = db.search(req);
+    std::cout << "Search Status: " << (res.success ? "SUCCESS" : "FAILED") << std::endl;
+    std::cout << "Query Execution Time: " << res.query_time_ms << " ms" << std::endl;
+    std::cout << "Top " << res.hits.size() << " Search Results:" << std::endl;
+
+    for (const auto& hit : res.hits) {
+        std::cout << "  - Vector ID: " << hit.id 
+                  << " | Distance: " << hit.distance 
+                  << " | Payload: " << hit.payload_json << std::endl;
     }
 
-    // 5. Test Persistence (Saving & Loading HNSW Index)
-    const std::string db_file = "hnsw_graph.bin";
-    std::cout << "\nSaving HNSW index graph to disk (" << db_file << ")..." << std::endl;
-    bool saved = hnsw_index.save(db_file);
-    assert(saved && "Failed to save HNSW index to disk!");
+    std::cout << "\n4. Snapshotting Database Catalog & Collections to disk..." << std::endl;
+    bool snap = db.snapshot();
+    std::cout << "Snapshot saved to " << db_path << ": " << (snap ? "SUCCESS" : "FAILED") << std::endl;
 
-    std::cout << "Loading HNSW index graph from disk into fresh index instance..." << std::endl;
-    vectordb::HNSWIndex reloaded_hnsw;
-    bool loaded = reloaded_hnsw.load(db_file);
-    assert(loaded && "Failed to load HNSW index from disk!");
-    assert(reloaded_hnsw.size() == 50 || reloaded_hnsw.size() == 5 && "Loaded index size should match!");
+    std::cout << "\n5. Re-opening Database in fresh instance..." << std::endl;
+    vectordb::Database db_reopened(db_path);
+    db_reopened.open();
+    std::cout << "Reopened collections count: " << db_reopened.list_collections().size() << std::endl;
 
-    std::cout << "Searching reloaded index for query..." << std::endl;
-    auto reloaded_results = reloaded_hnsw.search(query, k);
+    auto re_res = db_reopened.search(req);
+    std::cout << "Reopened Index Top Match Vector ID: " << re_res.hits[0].id 
+              << " | Payload: " << re_res.hits[0].payload_json << std::endl;
 
-    assert(reloaded_results.size() == 2 && "Reloaded index search failed");
-    assert(reloaded_results[0].id == 2 && "Reloaded 1st closest must match");
-    assert(reloaded_results[1].id == 4 && "Reloaded 2nd closest must match");
-
-    for (const auto& res : reloaded_results) {
-        std::cout << "[Reloaded] Vector ID: " << res.id << " | L2 Distance: " << res.distance << std::endl;
-    }
-
-    std::cout << "\n[SUCCESS] HNSW Graph built, persisted, reloaded, and searched correctly!" << std::endl;
+    std::cout << "\n==================================================" << std::endl;
+    std::cout << " [SUCCESS] PipoDB Engine Multi-Collection Demo Complete! " << std::endl;
+    std::cout << "==================================================" << std::endl;
 
     return 0;
 }
