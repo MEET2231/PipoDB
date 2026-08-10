@@ -23,10 +23,17 @@ int main() {
     user_params.dimension = 3;
     user_params.index_type = "FLAT";
 
+    vectordb::CollectionParams sq8_params;
+    sq8_params.name = "sq8_embeddings";
+    sq8_params.dimension = 3;
+    sq8_params.index_type = "SQ8";
+
     bool c1 = db.create_collection(doc_params);
     bool c2 = db.create_collection(user_params);
+    bool c3 = db.create_collection(sq8_params);
     std::cout << "Collection 'documents' created: " << (c1 ? "YES" : "NO") << std::endl;
     std::cout << "Collection 'users' created: " << (c2 ? "YES" : "NO") << std::endl;
+    std::cout << "Collection 'sq8_embeddings' (4x Compressed) created: " << (c3 ? "YES" : "NO") << std::endl;
 
     auto collections = db.list_collections();
     std::cout << "Active Database Collections (" << collections.size() << "): ";
@@ -39,6 +46,8 @@ int main() {
     db.insert_vector("documents", 101, {1.0f, 1.0f, 1.0f}, "{\"title\": \"Introduction to C++\", \"author\": \"Bjarne\", \"category\": \"tech\"}");
     db.insert_vector("documents", 102, {2.0f, 2.0f, 2.0f}, "{\"title\": \"Vector Databases 101\", \"author\": \"PipoDB\", \"category\": \"tech\"}");
     db.insert_vector("documents", 103, {9.0f, 9.0f, 9.0f}, "{\"title\": \"Financial Analytics\", \"author\": \"Quant Team\", \"category\": \"finance\"}");
+
+    db.insert_vector("sq8_embeddings", 1, {1.0f, 2.0f, 3.0f}, "{\"compressed\": true}");
 
     auto doc_col = db.get_collection("documents");
     std::cout << "Total vectors in 'documents': " << doc_col->size() << std::endl;

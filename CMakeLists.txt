@@ -19,6 +19,7 @@ add_library(vectordb_core
     src/Collection.cpp
     src/DB.cpp
     src/Filter.cpp
+    src/SQ8Index.cpp
 )
 
 # Build app executable

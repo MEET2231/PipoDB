@@ -1,6 +1,7 @@
 #include "vectordb/Collection.h"
 #include "vectordb/HNSWIndex.h"
 #include "vectordb/FlatIndex.h"
+#include "vectordb/SQ8Index.h"
 #include <fstream>
 #include <sstream>
 #include <mutex>
@@ -31,6 +32,8 @@ namespace vectordb {
         MetricType metric = Distance::parse_metric(params_.metric);
         if (params_.index_type == "FLAT") {
             index_ = std::make_unique<FlatIndex>(metric);
+        } else if (params_.index_type == "SQ8") {
+            index_ = std::make_unique<SQ8Index>(params_.dimension, metric);
         } else {
             index_ = std::make_unique<HNSWIndex>(params_.M, params_.ef_construction, params_.ef_search, metric);
         }
