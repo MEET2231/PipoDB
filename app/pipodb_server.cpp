@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include "vectordb/DB.h"
 #include "vectordb/Filter.h"
+#include "vectordb/Batch.h"
 
 namespace {
 

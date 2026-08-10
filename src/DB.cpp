@@ -187,6 +187,20 @@ namespace vectordb {
         return col->remove_vector(id);
     }
 
+    BatchIngestResult Database::insert_batch(const std::string& collection_name, const std::vector<BatchVectorRecord>& records, size_t num_threads) {
+        std::shared_ptr<Collection> col;
+        {
+            std::shared_lock<std::shared_mutex> lock(db_mutex_);
+            auto it = collections_.find(collection_name);
+            if (it == collections_.end()) {
+                return BatchIngestResult{ 0, 0, {}, 0.0, 0.0 };
+            }
+            col = it->second;
+        }
+
+        return col->insert_batch(records, num_threads);
+    }
+
     DBUpsertResponse Database::upsert_if_close(const std::string& collection_name, const std::vector<float>& data, const std::string& payload_json, float distance_threshold, VectorID explicit_id) {
         std::shared_ptr<Collection> col;
         {

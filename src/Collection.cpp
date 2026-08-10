@@ -79,6 +79,45 @@ namespace vectordb {
         return true;
     }
 
+    BatchIngestResult Collection::insert_batch(const std::vector<BatchVectorRecord>& records, size_t num_threads) {
+        auto start_time = std::chrono::high_resolution_clock::now();
+        if (records.empty()) {
+            return BatchIngestResult{ 0, 0, {}, 0.0, 0.0 };
+        }
+
+        IngestWorkerPool pool(num_threads);
+        size_t actual_threads = pool.num_threads();
+        size_t n = records.size();
+        size_t chunk_size = (n + actual_threads - 1) / actual_threads;
+
+        std::vector<VectorID> assigned_ids(n, 0);
+        std::atomic<size_t> success_count{0};
+
+        for (size_t t = 0; t < actual_threads; ++t) {
+            size_t start_idx = t * chunk_size;
+            size_t end_idx = std::min(start_idx + chunk_size, n);
+            if (start_idx >= end_idx) continue;
+
+            pool.enqueue([this, &records, start_idx, end_idx, &assigned_ids, &success_count]() {
+                for (size_t i = start_idx; i < end_idx; ++i) {
+                    try {
+                        VectorID assigned = this->add_vector(records[i].data, records[i].payload_json, records[i].id);
+                        assigned_ids[i] = assigned;
+                        success_count.fetch_add(1, std::memory_order_relaxed);
+                    } catch (...) {}
+                }
+            });
+        }
+
+        pool.wait_idle();
+
+        auto end_time = std::chrono::high_resolution_clock::now();
+        double duration_ms = std::chrono::duration<double, std::milli>(end_time - start_time).count();
+        double vps = (duration_ms > 0.0) ? (static_cast<double>(success_count.load()) / (duration_ms / 1000.0)) : 0.0;
+
+        return BatchIngestResult{ n, success_count.load(), assigned_ids, duration_ms, vps };
+    }
+
     UpsertResult Collection::upsert_if_close(const std::vector<float>& data, const std::string& payload_json, float distance_threshold, VectorID explicit_id) {
         std::unique_lock<std::shared_mutex> lock(collection_mutex_);
         if (data.size() != params_.dimension) {

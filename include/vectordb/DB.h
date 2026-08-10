@@ -59,6 +59,7 @@ namespace vectordb {
         VectorID insert_vector(const std::string& collection_name, const std::vector<float>& data, const std::string& payload_json = "", VectorID explicit_id = 0);
         bool insert_vector(const std::string& collection_name, VectorID id, const std::vector<float>& data, const std::string& payload_json);
         bool remove_vector(const std::string& collection_name, VectorID id);
+        BatchIngestResult insert_batch(const std::string& collection_name, const std::vector<BatchVectorRecord>& records, size_t num_threads = 0);
 
         DBUpsertResponse upsert_if_close(
             const std::string& collection_name,

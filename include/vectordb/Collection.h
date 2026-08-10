@@ -9,6 +9,7 @@
 #include "vectordb/Vector.h"
 #include "vectordb/Index.h"
 #include "vectordb/Filter.h"
+#include "vectordb/Batch.h"
 
 namespace vectordb {
 
@@ -56,6 +57,9 @@ namespace vectordb {
         VectorID add_vector(const std::vector<float>& data, const std::string& payload_json = "", VectorID explicit_id = 0);
         bool add_vector(VectorID id, const std::vector<float>& data, const std::string& payload_json);
         bool remove_vector(VectorID id);
+
+        // High-Throughput Parallel Batch Ingestion
+        BatchIngestResult insert_batch(const std::vector<BatchVectorRecord>& records, size_t num_threads = 0);
 
         // Semantic Near-Duplicate Upsert: Updates existing vector payload if distance <= distance_threshold
         UpsertResult upsert_if_close(
