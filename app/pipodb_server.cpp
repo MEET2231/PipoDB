@@ -12,6 +12,7 @@
 #include "vectordb/DB.h"
 #include "vectordb/Filter.h"
 #include "vectordb/Batch.h"
+#include <fstream>
 
 namespace {
 
@@ -133,7 +134,12 @@ namespace {
             std::stringstream ss;
             ss << "{\"collections\": [";
             for (size_t i = 0; i < cols.size(); ++i) {
-                ss << "\"" << cols[i] << "\"";
+                auto col = db.get_collection(cols[i]);
+                ss << "{\"name\": \"" << cols[i] << "\""
+                   << ", \"dimension\": " << (col ? col->dimension() : 128)
+                   << ", \"vector_count\": " << (col ? col->size() : 0)
+                   << ", \"metric\": \"" << (col ? col->params().metric : "L2") << "\""
+                   << ", \"index_type\": \"" << (col ? col->params().index_type : "HNSW") << "\"}";
                 if (i + 1 < cols.size()) ss << ", ";
             }
             ss << "], \"count\": " << cols.size() << "}";
