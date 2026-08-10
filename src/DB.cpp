@@ -220,7 +220,7 @@ namespace vectordb {
         }
 
         try {
-            auto hits = col->search(request.query_vector, request.top_k, request.include_payload);
+            auto hits = col->search(request.query_vector, request.top_k, request.include_payload, request.filter);
             auto end_time = std::chrono::high_resolution_clock::now();
             double duration_ms = std::chrono::duration<double, std::milli>(end_time - start_time).count();
 

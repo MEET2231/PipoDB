@@ -14,6 +14,7 @@ namespace vectordb {
         std::vector<float> query_vector;
         int top_k = 10;
         bool include_payload = true;
+        PayloadFilter filter;
     };
 
     struct DBQueryResponse {

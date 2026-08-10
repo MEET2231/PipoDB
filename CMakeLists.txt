@@ -18,6 +18,7 @@ add_library(vectordb_core
     src/HNSWIndex.cpp
     src/Collection.cpp
     src/DB.cpp
+    src/Filter.cpp
 )
 
 # Build executable and link against vectordb_core

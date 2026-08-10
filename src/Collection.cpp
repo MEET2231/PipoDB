@@ -115,25 +115,34 @@ namespace vectordb {
         return UpsertResult{ assigned_id, false, -1.0f };
     }
 
-    std::vector<CollectionHit> Collection::search(const std::vector<float>& query, int k, bool include_payload) const {
+    std::vector<CollectionHit> Collection::search(const std::vector<float>& query, int k, bool include_payload, const PayloadFilter& filter) const {
         std::shared_lock<std::shared_mutex> lock(collection_mutex_);
         if (query.size() != params_.dimension) {
             throw std::invalid_argument("Query vector dimension does not match collection dimension.");
         }
 
-        auto search_results = index_->search(query, k);
+        int search_k = filter.empty() ? k : std::max(k * 10, 100);
+        auto search_results = index_->search(query, search_k);
         std::vector<CollectionHit> hits;
-        hits.reserve(search_results.size());
+        hits.reserve(k);
 
         for (const auto& res : search_results) {
             std::string payload = "";
-            if (include_payload) {
-                auto it = payloads_.find(res.id);
-                if (it != payloads_.end()) {
-                    payload = it->second;
+            auto it = payloads_.find(res.id);
+            if (it != payloads_.end()) {
+                payload = it->second;
+            }
+
+            if (!filter.empty()) {
+                if (!filter.matches(payload)) {
+                    continue;
                 }
             }
-            hits.push_back(CollectionHit{res.id, res.distance, payload});
+
+            hits.push_back(CollectionHit{res.id, res.distance, include_payload ? payload : ""});
+            if (hits.size() >= static_cast<size_t>(k)) {
+                break;
+            }
         }
 
         return hits;

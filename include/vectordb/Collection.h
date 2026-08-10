@@ -8,6 +8,7 @@
 #include <atomic>
 #include "vectordb/Vector.h"
 #include "vectordb/Index.h"
+#include "vectordb/Filter.h"
 
 namespace vectordb {
 
@@ -64,7 +65,7 @@ namespace vectordb {
             VectorID explicit_id = 0
         );
 
-        std::vector<CollectionHit> search(const std::vector<float>& query, int k, bool include_payload = true) const;
+        std::vector<CollectionHit> search(const std::vector<float>& query, int k, bool include_payload = true, const PayloadFilter& filter = {}) const;
         bool get_vector(VectorID id, std::vector<float>& out_data, std::string& out_payload) const;
 
         // Serialization
