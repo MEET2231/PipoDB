@@ -1,0 +1,16 @@
+services:
+  pipodb-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pipodb_server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./pipodb_container_data:/app/pipodb_server_data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3

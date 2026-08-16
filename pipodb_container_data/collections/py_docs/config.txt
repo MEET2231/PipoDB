@@ -1,0 +1,7 @@
+name=py_docs
+dimension=3
+metric=COSINE
+index_type=HNSW
+M=16
+ef_construction=200
+ef_search=50

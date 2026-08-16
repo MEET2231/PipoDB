@@ -1,0 +1,2 @@
+1
+py_docs 3 COSINE HNSW 16 200 50

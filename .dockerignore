@@ -1,0 +1,9 @@
+build/
+.git/
+.gitignore
+pipodb_server_data/
+pipodb_demo_data/
+pipodb_container_data/
+*.log
+*.o
+*.a
